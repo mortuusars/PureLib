@@ -76,30 +76,17 @@ public static class ExtensionMethods
     }
 
     /// <summary>
-    /// Deserializes input json string to object.
+    /// Executes action on each element of the source collection.
     /// </summary>
-    /// <typeparam name="T">Resulting type.</typeparam>
-    /// <param name="json">Input json string.</param>
-    /// <returns>Deserialized object.</returns>
-    /// <exception cref="JsonException"/>
-    /// <exception cref="ArgumentNullException"/>
-    /// <exception cref="NotSupportedException"/>
-    public static T? Deserialize<T>(this string json)
+    /// <param name="action">Action to execute.</param>
+    public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
     {
-        return JsonSerializer.Deserialize<T>(json);
-    }
+        ArgumentNullException.ThrowIfNull(source, nameof(source));
+        ArgumentNullException.ThrowIfNull(action, nameof(action));
 
-    /// <summary>
-    /// Deserializes input json string to object using the provided options..
-    /// </summary>
-    /// <typeparam name="T">Resulting type.</typeparam>
-    /// <param name="json">Input json string.</param>
-    /// <returns>Deserialized object.</returns>
-    /// <exception cref="JsonException"/>
-    /// <exception cref="ArgumentNullException"/>
-    /// <exception cref="NotSupportedException"/>
-    public static T? Deserialize<T>(this string json, JsonSerializerOptions options)
-    {
-        return JsonSerializer.Deserialize<T>(json, options);
+        foreach (T item in source)
+        {
+            action(item);
+        }
     }
 }
