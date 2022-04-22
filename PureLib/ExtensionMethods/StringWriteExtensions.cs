@@ -14,7 +14,7 @@ public static class StringWriteExtensions
     /// /// <exception cref="NotSupportedException"/>
     public static FileInfo WriteToFile(this string contents, string filePath)
     {
-        Directory.CreateDirectory(filePath);
+        CreateDirectoryIfNotExists(filePath);
         File.WriteAllText(filePath, contents);
         return new FileInfo(filePath);
     }
@@ -31,7 +31,7 @@ public static class StringWriteExtensions
     /// /// <exception cref="NotSupportedException"/>
     public static async Task<FileInfo> WriteToFileAsync(this string contents, string filePath)
     {
-        Directory.CreateDirectory(filePath);
+        CreateDirectoryIfNotExists(filePath);
         await File.WriteAllTextAsync(filePath, contents);
         return new FileInfo(filePath);
     }
@@ -48,7 +48,7 @@ public static class StringWriteExtensions
     /// /// <exception cref="NotSupportedException"/>
     public static FileInfo AppendToFile(this string contents, string filePath)
     {
-        Directory.CreateDirectory(filePath);
+        CreateDirectoryIfNotExists(filePath);
         File.AppendAllText(filePath, contents);
         return new FileInfo(filePath);
     }
@@ -65,8 +65,19 @@ public static class StringWriteExtensions
     /// /// <exception cref="NotSupportedException"/>
     public static async Task<FileInfo> AppendToFileAsync(this string contents, string filePath)
     {
-        Directory.CreateDirectory(filePath);
+        CreateDirectoryIfNotExists(filePath);
         await File.AppendAllTextAsync(filePath, contents);
         return new FileInfo(filePath);
+    }
+
+    private static void CreateDirectoryIfNotExists(string filePath)
+    {
+        string? directoryPath = Path.GetDirectoryName(filePath);
+        if (directoryPath is not null)
+        {
+            DirectoryInfo directory = new DirectoryInfo(directoryPath);
+            if (!directory.Exists)
+                directory.Create();
+        }
     }
 }
