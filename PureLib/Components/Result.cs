@@ -30,7 +30,7 @@ public record Result
         if (success && errorMessage != string.Empty)
             throw new InvalidOperationException("Successful result cannot have an error message.");
 
-        if (!success && string.IsNullOrWhiteSpace(errorMessage))
+        if (!success && errorMessage is null)
             throw new InvalidOperationException("Failed result should have an error message.");
 
         Success = success;
@@ -45,17 +45,26 @@ public record Result
     /// <summary>
     /// Successful result with value.
     /// </summary>
-    public static Result<T> Ok<T>(T value) => new Result<T>(value, true, string.Empty);
+    public static Result<T> Ok<T>(T value) => new(true, value, string.Empty);
+    /// <summary>
+    /// Successful result with value. Error will be default(TError).
+    /// </summary>
+    public static Result<TValue, TError> Ok<TValue, TError>(TValue value) => new(true, value, default!);
 
     /// <summary>
     /// Operation failed.
     /// </summary>
-    public static Result Fail(string errorMessage) => new Result(false, errorMessage);
+    public static Result Fail(string errorMessage) => new(false, errorMessage);
 
     /// <summary>
-    /// Failed result of specified type.
+    /// Failed result of specified type. Value will be default(T)
     /// </summary>
-    public static Result<T> Fail<T>(string errorMessage) => new Result<T>(default!, false, errorMessage);
+    public static Result<T> Fail<T>(string errorMessage) => new(false, default!, errorMessage);
+
+    /// <summary>
+    /// Failed result of specified type. Value will be default(TValue)
+    /// </summary>
+    public static Result<TValue, TError> Fail<TValue, TError>(TError error) => new(false, default!, error);
 }
 
 /// <summary>
@@ -73,11 +82,27 @@ public record Result<T> : Result
     /// <summary>
     /// Creates instance of class and sets specified properties.
     /// </summary>
-    /// <param name="value">Value of the result.</param>
     /// <param name="success">Whether operation succeded or not.</param>
+    /// <param name="value">Value of the result.</param>
     /// <param name="errorMessage">Message of the fail.</param>
-    protected internal Result(T value, bool success, string errorMessage) : base(success, errorMessage)
+    protected internal Result(bool success, T value, string errorMessage) : base(success, errorMessage)
     {
         Value = value;
+    }
+}
+
+public record Result<TValue, TError> : Result<TValue>
+{
+    /// <summary>
+    /// Gets the error of what went wrong when operation failed.
+    /// </summary>
+    public new TError Error { get; }
+
+    /// <summary>
+    /// Creates instance of Result and sets properties to provided values.
+    /// </summary>
+    public Result(bool success, TValue value, TError errorValue) : base(success, value, string.Empty)
+    {
+        Error = errorValue;
     }
 }

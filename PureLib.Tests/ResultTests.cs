@@ -17,6 +17,13 @@ public class ResultTests
         new object[] { Result.Fail<string>("error"), false, null!, "error" },
     };
 
+    public static readonly object[][] ResultOfValueAndErrorData = new object[][]
+    {
+        new object[] { Result.Ok<string, bool>(""), true, string.Empty, false },
+        new object[] { Result.Ok<string, bool>(null!), true, null!, false },
+        new object[] { Result.Fail<string, bool>(false), false, null!, false },
+    };
+
     [Theory]
     [MemberData(nameof(ResultData))]
     public void ResultTest(Result result, bool expectedSuccess, string expectedErrorMsg)
@@ -32,5 +39,14 @@ public class ResultTests
         Assert.Equal(expectedSuccess, result.Success);
         Assert.Equal(expectedValue, result.Value);
         Assert.Equal(expectedErrorMsg, result.Error);
+    }
+
+    [Theory]
+    [MemberData(nameof(ResultOfValueAndErrorData))]
+    public void ResultOfValueAndErrorTest(Result<string, bool> result, bool expectedSuccess, string expectedValue, bool expectedErrorValue)
+    {
+        Assert.Equal(expectedSuccess, result.Success);
+        Assert.Equal(expectedValue, result.Value);
+        Assert.Equal(expectedErrorValue, result.Error);
     }
 }
